@@ -3,14 +3,16 @@ import time
 from PIL import Image
 import numpy as np
 from keras import backend
-from keras.applications.vgg16 import VGG16
+from keras.applications import VGG19
 from scipy.optimize import fmin_l_bfgs_b
+
 
 ##########################################
 iterations = 10
 
 height = 512
 width = 512
+
 
 content_image_path = './Import_Images/content2.jpg'
 content_image = Image.open(content_image_path)
@@ -46,15 +48,18 @@ combination_image = backend.placeholder((1,height,width,3))
 
 input_tensor = backend.concatenate([content_image,style_image,combination_image],axis=0)
 
-model = VGG16(input_tensor=input_tensor,weights='imagenet',include_top=False)
+model = VGG19(input_tensor=input_tensor,weights='imagenet',include_top=False)
 
 layers = dict([(layer.name, layer.output) for layer in model.layers])
 layers
 
-content_weight= 0.025
-style_weight= 5.0
-total_variation_weight = 1.0
+# content_weight= 7.5e0
+# style_weight= 1e2
+# total_variation_weight = 2e2
 loss = backend.variable(0.)
+content_weight= 5e0
+style_weight= 5e2
+total_variation_weight = 1e2
 
 def content_loss(content, combination):
     return backend.sum(backend.square(combination - content))
@@ -133,7 +138,6 @@ evaluator = Evaluator()
 
 x = np.random.uniform(0, 255, (1, height, width, 3)) - 128.
 
-
 for i in range(iterations):
     print('Start of iteration', i)
     start_time = time.time()
@@ -148,7 +152,7 @@ for i in range(iterations):
     x[:, :, 2] += 123.68
     x = np.clip(x, 0, 255).astype('uint8')
     im = Image.fromarray(x)
-    im.save('./Output_Images/test2.jpg')
+    im.save('./Output_Images/test5.jpg')
 
 
 
